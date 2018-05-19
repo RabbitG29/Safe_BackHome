@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="kr.inha.inti.safe_backhome.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="한이음 안심귀가 서비스"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:textSize="30sp"
+        android:id="@+id/title"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_toLeftOf="@id/bluetooth"
+        android:layout_below="@id/title"
+        android:text="플래시"
+        android:id="@+id/flash"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/title"
+        android:layout_marginLeft="5dp"
+        android:text="블루투스 켜기/끄기"
+        android:textSize="10sp"
+        android:id="@+id/bluetooth"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_toRightOf="@id/bluetooth"
+        android:layout_marginLeft="5dp"
+        android:layout_below="@id/title"
+        android:text="사이렌"
+        android:id="@+id/siren"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/siren"
+        android:layout_alignLeft="@+id/flash"
+        android:layout_alignRight="@+id/siren"
+        android:layout_alignStart="@+id/flash"
+        android:layout_below="@id/bluetooth"
+        android:layout_marginTop="50dp"
+        android:text = "안심귀가 서비스"
+        android:textSize = "35sp"
+        android:id="@+id/safe_service"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/siren"
+        android:layout_alignLeft="@+id/flash"
+        android:layout_alignRight="@+id/siren"
+        android:layout_alignStart="@+id/flash"
+        android:layout_below="@id/safe_service"
+        android:text="주위 편의 시설"
+        android:textSize="35sp"
+        android:id="@+id/convenience"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/siren"
+        android:layout_alignLeft="@+id/flash"
+        android:layout_alignRight="@+id/siren"
+        android:layout_alignStart="@+id/flash"
+        android:layout_below="@id/convenience"
+        android:text="위급상황 알림"
+        android:textSize="35sp"
+        android:id="@+id/emergency"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/emergency"
+        android:layout_marginTop="10dp"
+        android:text = "Team 귀가본능"
+        android:textSize="10sp"
+        />
+</RelativeLayout>
