@@ -103,7 +103,7 @@ public class UserinfoActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
-            result = requestHttpURLConnection.request(url, jsonObject);
+            result = requestHttpURLConnection.request(url, jsonObject, "POST").toString();
             Log.e("Async","Async");
             Log.e("result",result);
             return result;

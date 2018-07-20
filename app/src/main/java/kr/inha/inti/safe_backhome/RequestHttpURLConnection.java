@@ -2,18 +2,18 @@ package kr.inha.inti.safe_backhome;
 
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RequestHttpURLConnection {
-    public String request(String _url, JSONObject _params){
+    public JSONObject request(String _url, JSONObject _params, String _method){
         Log.e("tag", _params.toString());
 
         // HttpURLConnection 참조 변수.
@@ -40,9 +40,9 @@ public class RequestHttpURLConnection {
             urlConn = (HttpURLConnection) url.openConnection();
 
             // [2-1]. urlConn 설정.
-            urlConn.setRequestMethod("POST"); // URL 요청에 대한 메소드 설정 : POST.
-            urlConn.setRequestProperty("Accept-Charset", "UTF-8"); // Accept-Charset 설정.
-            urlConn.setRequestProperty("Context_Type", "application/x-www-form-urlencoded;cahrset=UTF-8");
+            urlConn.setRequestMethod(_method); // URL 요청에 대한 메소드 설정.
+            urlConn.setRequestProperty("Accept", "application/json"); // Accept-Charset 설정.
+            urlConn.setRequestProperty("Context_Type", "application/json");
 
             // [2-2]. parameter 전달 및 데이터 읽어오기.
             String strParams = sbParams.toString(); //sbParams에 정리한 파라미터들을 스트링으로 저장. 예)id=id1&pw=123;
@@ -58,18 +58,26 @@ public class RequestHttpURLConnection {
 
             // [2-4]. 읽어온 결과물 리턴.
             // 요청한 URL의 출력물을 BufferedReader로 받는다.
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
-
-            // 출력물의 라인과 그 합에 대한 변수.
-            String line;
-            String page = "";
-
-            // 라인을 받아와 합친다.
-            while ((line = reader.readLine()) != null){
-                page += line;
+            String response;
+            InputStream is = null;
+            ByteArrayOutputStream baos = null;
+            is = urlConn.getInputStream();
+            baos = new ByteArrayOutputStream();
+            byte[] byteBuffer = new byte[1024];
+            byte[] byteData = null;
+            int nLength = 0;
+            while((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+                baos.write(byteBuffer, 0, nLength);
             }
-
-            return page;
+            byteData = baos.toByteArray();
+            response = new String(byteData);
+            try{
+                JSONObject responseJSON = new JSONObject(response);
+                Log.e("response", responseJSON.toString());
+                return responseJSON;
+            } catch(JSONException e) {
+                e.printStackTrace();
+            }
 
         } catch (MalformedURLException e) { // for URL.
             e.printStackTrace();
@@ -79,8 +87,6 @@ public class RequestHttpURLConnection {
             if (urlConn != null)
                 urlConn.disconnect();
         }
-
         return null;
-
     }
 }

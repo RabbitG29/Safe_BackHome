@@ -19,8 +19,6 @@
         android:textSize="30sp"
         android:id="@+id/title"
         />
-
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,6 +26,22 @@
         android:layout_below="@id/title"
         android:layout_centerHorizontal="true"
         android:id="@+id/locationtest"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:layout_below="@id/locationtest"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/nametest"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:layout_below="@id/nametest"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/ecphonetest"
         />
     <Button
         android:layout_width="wrap_content"
