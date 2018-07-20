@@ -1,11 +1,15 @@
 package kr.inha.inti.safe_backhome;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,7 +19,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Menu;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /*
  * 2018-07-11 KDH
@@ -32,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
     // Flash를 위한 변수들
     boolean chkFlash = false;
     private Camera camera;
+    //GPS를 위한 변수들
+    private final int PERMISSIONS_ACCESS_FINE_LOCATION = 1000;
+    private final int PERMISSIONS_ACCESS_COARSE_LOCATION = 1001;
+    private boolean isAccessFineLocation = false;
+    private boolean isAccessCoarseLocation = false;
+    private boolean isPermission = false;
+    private GpsInfo gps;
+    TextView locationtest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         Button sirenButton = (Button) findViewById(R.id.sirenButton);
         Button flashButton = (Button) findViewById(R.id.flashButton);
         Button userinfoButton = (Button) findViewById(R.id.userinfoButton);
+        Button emergencyButton = (Button) findViewById(R.id.emergencyButton);
+
+        locationtest = (TextView) findViewById(R.id.locationtest);
+
+
 
         //Bluetooth 객체 생성 및 블루투스
         if (bluetoothService == null) {
@@ -110,6 +132,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        /*-----GPS 위도 경도 받아오기-------*/
+        emergencyButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View arg0) {
+                // 권한 요청을 해야 함
+                if (!isPermission) {
+                    callPermission();
+                    return;
+                }
+
+                gps = new GpsInfo(MainActivity.this);
+                // GPS 사용유무 가져오기
+                if (gps.isGetLocation()) {
+                    // 위도, 경도 구하기
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+
+                    // 구한 위도, 경도를 이용해 주소 구하기
+                    String location = getAddress(MainActivity.this,latitude,longitude);
+
+                    locationtest.setText(location);
+
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "당신의 위치 - " + location,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    // GPS 를 사용할수 없으므로
+                    gps.showSettingsAlert();
+                }
+            }
+        });
     }
     @Override
     public void onDestroy() {
@@ -136,6 +189,77 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "'뒤로' 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
         lastTimeBackPressed = System.currentTimeMillis();
     }
+    /*----GPS 권한이 있는지 확인----*/
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_ACCESS_FINE_LOCATION
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+            isAccessFineLocation = true;
 
+        } else if (requestCode == PERMISSIONS_ACCESS_COARSE_LOCATION
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+            isAccessCoarseLocation = true;
+        }
+
+        if (isAccessFineLocation && isAccessCoarseLocation) {
+            isPermission = true;
+        }
+    }
+
+    // GPS 권한 요청
+    private void callPermission() {
+        // Check the SDK version and whether the permission is already granted or not.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_ACCESS_FINE_LOCATION);
+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSIONS_ACCESS_COARSE_LOCATION);
+        } else {
+            isPermission = true;
+        }
+    }
+    /**
+     * 위도,경도로 주소구하기
+     * @param lat
+     * @param lng
+     * @return 주소
+     */
+    public static String getAddress(Context mContext, double lat, double lng) {
+        String nowAddress ="현재 위치를 확인 할 수 없습니다.";
+        Geocoder geocoder = new Geocoder(mContext, Locale.KOREA);
+        List<Address> address;
+        try {
+            if (geocoder != null) {
+                //세번째 파라미터는 좌표에 대해 주소를 리턴 받는 갯수로
+                //한좌표에 대해 두개이상의 이름이 존재할수있기에 주소배열을 리턴받기 위해 최대갯수 설정
+                address = geocoder.getFromLocation(lat, lng, 1);
+
+                if (address != null && address.size() > 0) {
+                    // 주소 받아오기
+                    String currentLocationAddress = address.get(0).getAddressLine(0).toString();
+                    nowAddress  = currentLocationAddress;
+
+                }
+            }
+
+        } catch (IOException e) {
+            Toast.makeText(mContext, "주소를 가져 올 수 없습니다.", Toast.LENGTH_LONG).show();
+
+            e.printStackTrace();
+        }
+        return nowAddress;
+    }
 }
