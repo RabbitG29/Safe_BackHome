@@ -39,7 +39,11 @@
             android:label="지도"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-
+        <activity
+            android:name=".DaumWebViewActivity"
+            android:label="웹뷰"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

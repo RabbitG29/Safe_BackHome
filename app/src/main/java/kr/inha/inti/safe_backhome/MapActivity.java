@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,7 +13,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,12 +26,14 @@ import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MapActivity extends Activity  {
     private GpsInfo gps;
+    final static int A_ACTIVITY_RESULT = 1;
+    EditText edit1;
+    final static int B_ACTIVITY_RESULT = 2;
+    EditText edit2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -45,7 +47,6 @@ public class MapActivity extends Activity  {
         TMapPoint tMapPoint1;
 
         Button pathButton = (Button) findViewById(R.id.pathButton);
-
 
         gps = new GpsInfo(MapActivity.this);
         // GPS 사용유무 가져오기
@@ -74,9 +75,29 @@ public class MapActivity extends Activity  {
             public void onClick(View view) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 LinearLayout pathLayout = (LinearLayout) vi.inflate(R.layout.path_layout, null);
-                final String[] path = new String[]{"인하대학교", "SKT타워"};
-                final EditText edit1 = (EditText) pathLayout.findViewById(R.id.edit1);
-                final EditText edit2 = (EditText) pathLayout.findViewById(R.id.edit2);
+                final String[] path = new String[]{"인하대학교", "SKT타워"}; // 기본 초기화
+                Button pathButton1 = (Button) pathLayout.findViewById(R.id.button1);
+                edit1 = (EditText) pathLayout.findViewById(R.id.edit1);
+                pathButton1.setOnClickListener(new View.OnClickListener() { // 출발지
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getApplicationContext(), DaumWebViewActivity.class);
+                        startActivityForResult(intent, A_ACTIVITY_RESULT);
+                        intent = getIntent();
+                        onActivityResult(A_ACTIVITY_RESULT, RESULT_OK, intent);
+                    }
+                });
+                Button pathButton2 = (Button) pathLayout.findViewById(R.id.button2);
+                edit2 = (EditText) pathLayout.findViewById(R.id.edit2);
+                pathButton2.setOnClickListener(new View.OnClickListener() { // 도착지
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getApplicationContext(), DaumWebViewActivity.class);
+                        startActivityForResult(intent, B_ACTIVITY_RESULT);
+                        intent = getIntent();
+                        onActivityResult(B_ACTIVITY_RESULT, RESULT_OK, intent);
+                    }
+                });
                 AlertDialog.Builder pathDialog = new AlertDialog.Builder(MapActivity.this);
                 pathDialog.setTitle("길찾기");
                 pathDialog.setView(pathLayout);
@@ -160,6 +181,20 @@ public class MapActivity extends Activity  {
             tMapView.addMarkerItem("markerItemStart", markerItemStart); // 지도에 마커 추가
             tMapView.addMarkerItem("markerItemEnd", markerItemEnd); // 지도에 마커 추가
             tMapView.setCenterPoint(tMapPointStart.getLongitude(),tMapPointStart.getLatitude());
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestcode, int resultcode, Intent data) {
+        super.onActivityResult(requestcode, resultcode, data);
+        if(resultcode==RESULT_OK) {
+            switch(requestcode) {
+                case A_ACTIVITY_RESULT: {
+                    edit1.setText(data.getStringExtra("path")); // 출발지 검색 버튼일 경우
+                } break;
+                case B_ACTIVITY_RESULT: {
+                    edit2.setText(data.getStringExtra("path")); // 도착지 검색 버튼일 경우
+                } break;
+            }
         }
     }
 }

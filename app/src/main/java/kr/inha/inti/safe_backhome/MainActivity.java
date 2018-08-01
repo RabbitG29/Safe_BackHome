@@ -28,6 +28,9 @@ import android.view.Menu;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.beardedhen.androidbootstrap.TypefaceProvider;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -66,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TypefaceProvider.registerDefaultIconSets();
         setContentView(R.layout.activity_main);
-
         /*-------Button 정의-----------*/
         Button connBluetoothButton= (Button) findViewById(R.id.bluetoothButton);
         Button sirenButton = (Button) findViewById(R.id.sirenButton);
