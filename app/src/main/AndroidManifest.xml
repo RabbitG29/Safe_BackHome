@@ -34,6 +34,11 @@
             android:label="사용자 설정"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name=".MapActivity"
+            android:label="지도"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
 
     </application>
 

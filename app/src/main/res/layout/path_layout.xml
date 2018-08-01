@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="출발지를 입력하세요"
+            android:id="@+id/edit1"
+            />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="도착지를 입력하세요"
+            android:id="@+id/edit2"
+            />
+
+</android.widget.LinearLayout>

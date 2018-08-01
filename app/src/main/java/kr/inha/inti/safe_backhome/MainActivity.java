@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         Button flashButton = (Button) findViewById(R.id.flashButton);
         Button userinfoButton = (Button) findViewById(R.id.userinfoButton);
         Button emergencyButton = (Button) findViewById(R.id.emergencyButton);
+        Button safe_serviceButton = (Button) findViewById(R.id.safe_serviceButton);
 
         locationtest = (TextView) findViewById(R.id.locationtest);
         nametest = (TextView) findViewById(R.id.nametest);
@@ -102,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         camera = Camera.open();
+        safe_serviceButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapActivity.class);
+                startActivity(intent);
+            }
+        });
         /*------사용자 설정 버튼을 누르면 사용자 설정 화면으로 이동-------*/
         userinfoButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {

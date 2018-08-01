@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="kr.inha.inti.safe_backhome.MapActivity">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="길찾기"
+        android:id="@+id/pathButton"
+        />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutTmap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+        </LinearLayout>
+    </android.widget.LinearLayout>
