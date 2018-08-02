@@ -7,16 +7,24 @@
         android:orientation="vertical"
         tools:context="kr.inha.inti.safe_backhome.MapActivity">
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="길찾기"
         android:id="@+id/pathButton"
         />
 
-        <LinearLayout
-            android:id="@+id/linearLayoutTmap"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayoutTmap"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/safeMap" />
+
     </android.widget.LinearLayout>

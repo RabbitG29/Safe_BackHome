@@ -13,8 +13,14 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -30,24 +36,49 @@ import java.util.List;
 
 public class MapActivity extends Activity  {
     private GpsInfo gps;
+    private WebView safemapView;
+    private WebSettings safemapSettings;
+    final static String safeurl="http://14.63.161.0:3000/safemap";
     final static int A_ACTIVITY_RESULT = 1;
     EditText edit1;
     final static int B_ACTIVITY_RESULT = 2;
     EditText edit2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.setContentView(R.layout.activity_map);
+        /*----TMap 관련 변수 정의----*/
         final LinearLayout linearLayoutTmap = (LinearLayout)findViewById(R.id.linearLayoutTmap);
         final TMapView tMapView = new TMapView(this);
-
         tMapView.setSKTMapApiKey( "ef7447fe-4766-4011-902b-a8117a302dd8" );
         TMapMarkerItem markerItem1 = new TMapMarkerItem();
-
         TMapPoint tMapPoint1;
+        /*----생활안전지도 관련 Webview 변수 정의----*/
+        safemapView = (WebView) findViewById(R.id.safeMap);
+        safemapSettings = safemapView.getSettings();
+        safemapSettings.setSupportZoom(true);
+        safemapSettings.setDomStorageEnabled(true);
+        safemapSettings.setLoadWithOverviewMode(true);
+        safemapSettings.setUseWideViewPort(true);
+        safemapSettings.setJavaScriptEnabled(true);
+        safemapView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String safeurl) {
+                view.loadUrl(safeurl);
+                return true;
+            }
+        });
+        safemapView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.e("시발", consoleMessage.message() + '\n' + consoleMessage.messageLevel() + '\n' + consoleMessage.sourceId());
+                return super.onConsoleMessage(consoleMessage);
+            }
+        });
+        Log.e("execute","execute");
+        safemapView.loadUrl(safeurl);
 
         Button pathButton = (Button) findViewById(R.id.pathButton);
-
+        /*----GPS 사용----*/
         gps = new GpsInfo(MapActivity.this);
         // GPS 사용유무 가져오기
         if (gps.isGetLocation()) {
@@ -56,7 +87,6 @@ public class MapActivity extends Activity  {
             double longitude = gps.getLongitude();
             tMapView.setCenterPoint(longitude, latitude);
             tMapPoint1 = new TMapPoint(latitude, longitude);
-            //Toast.makeTex(getApplicationContext(),"당신의 위치 - " + location,Toast.LENGTH_LONG).show();
         } else {
             // GPS 를 사용할수 없으므로
             gps.showSettingsAlert();
@@ -70,30 +100,32 @@ public class MapActivity extends Activity  {
         markerItem1.setTMapPoint( tMapPoint1 ); // 마커의 좌표 지정
         markerItem1.setName("현재위치"); // 마커의 타이틀 지정
         tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
+
+        /*-----길찾기 버튼 누를 시-----*/
         pathButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 LinearLayout pathLayout = (LinearLayout) vi.inflate(R.layout.path_layout, null);
                 final String[] path = new String[]{"인하대학교", "SKT타워"}; // 기본 초기화
-                Button pathButton1 = (Button) pathLayout.findViewById(R.id.button1);
+                Button pathButton1 = (Button) pathLayout.findViewById(R.id.button1); // 출발지
                 edit1 = (EditText) pathLayout.findViewById(R.id.edit1);
                 pathButton1.setOnClickListener(new View.OnClickListener() { // 출발지
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getApplicationContext(), DaumWebViewActivity.class);
-                        startActivityForResult(intent, A_ACTIVITY_RESULT);
+                        startActivityForResult(intent, A_ACTIVITY_RESULT); // 출발지 신호는 A
                         intent = getIntent();
                         onActivityResult(A_ACTIVITY_RESULT, RESULT_OK, intent);
                     }
                 });
-                Button pathButton2 = (Button) pathLayout.findViewById(R.id.button2);
+                Button pathButton2 = (Button) pathLayout.findViewById(R.id.button2); // 도착지
                 edit2 = (EditText) pathLayout.findViewById(R.id.edit2);
                 pathButton2.setOnClickListener(new View.OnClickListener() { // 도착지
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getApplicationContext(), DaumWebViewActivity.class);
-                        startActivityForResult(intent, B_ACTIVITY_RESULT);
+                        startActivityForResult(intent, B_ACTIVITY_RESULT); // 도착지 신호는 B
                         intent = getIntent();
                         onActivityResult(B_ACTIVITY_RESULT, RESULT_OK, intent);
                     }
@@ -116,6 +148,7 @@ public class MapActivity extends Activity  {
         linearLayoutTmap.addView( tMapView );
         super.onCreate(savedInstanceState);
     }
+    /*----주소를 위경도로 변환----*/
     public static Location findGeoPoint(Context mcontext, String address) {
         Location loc = new Location("");
         Geocoder coder = new Geocoder(mcontext);
@@ -183,6 +216,7 @@ public class MapActivity extends Activity  {
             tMapView.setCenterPoint(tMapPointStart.getLongitude(),tMapPointStart.getLatitude());
         }
     }
+    /*----주소 검색 이후 intent 정보 받아오기----*/
     @Override
     protected void onActivityResult(int requestcode, int resultcode, Intent data) {
         super.onActivityResult(requestcode, resultcode, data);
