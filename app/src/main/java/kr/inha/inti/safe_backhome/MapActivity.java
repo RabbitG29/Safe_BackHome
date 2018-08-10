@@ -27,12 +27,15 @@ import android.widget.LinearLayout;
 
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
+import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogManager;
 
 public class MapActivity extends Activity  {
     private GpsInfo gps;
@@ -49,9 +52,15 @@ public class MapActivity extends Activity  {
         /*----TMap 관련 변수 정의----*/
         final LinearLayout linearLayoutTmap = (LinearLayout)findViewById(R.id.linearLayoutTmap);
         final TMapView tMapView = new TMapView(this);
+        // 마커 아이콘
+        final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin);
+        final Bitmap bitmap2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin2);
+
         tMapView.setSKTMapApiKey( "ef7447fe-4766-4011-902b-a8117a302dd8" );
         TMapMarkerItem markerItem1 = new TMapMarkerItem();
         TMapPoint tMapPoint1;
+        TMapPOIItem tMapPOIItem = new TMapPOIItem();
+        TMapData tmapdata = new TMapData();
         /*----생활안전지도 관련 Webview 변수 정의----*/
         safemapView = (WebView) findViewById(R.id.safeMap);
         safemapSettings = safemapView.getSettings();
@@ -87,14 +96,31 @@ public class MapActivity extends Activity  {
             double longitude = gps.getLongitude();
             tMapView.setCenterPoint(longitude, latitude);
             tMapPoint1 = new TMapPoint(latitude, longitude);
+            tmapdata.findAroundNamePOI(tMapPoint1, "편의점", new TMapData.FindAroundNamePOIListenerCallback() {
+                @Override
+                public void onFindAroundNamePOI(ArrayList<TMapPOIItem> poiItem) {
+                    for(int i = 0; i < poiItem.size(); i++) {
+                        TMapPOIItem  item = poiItem.get(i);
+                        Log.e("Hi","POI Name: " + item.getPOIName().toString() + ", " +
+                                "Address: " + item.getPOIAddress().replace("null", "")  + ", " +
+                                "Point: " + item.getPOIPoint().toString());
+                        TMapMarkerItem POIitem[] = new TMapMarkerItem[200];
+                        POIitem[i] = new TMapMarkerItem();
+                        POIitem[i].setIcon(bitmap2);
+                        POIitem[i].setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                        POIitem[i].setTMapPoint( item.getPOIPoint() ); // 마커의 좌표 지정
+                        POIitem[i].setName(item.getPOIName().toString());
+                        tMapView.addMarkerItem(item.getPOIID(), POIitem[i]);
+                    }
+                }
+            });
         } else {
             // GPS 를 사용할수 없으므로
             gps.showSettingsAlert();
             tMapView.setCenterPoint(126.988205, 37.551135); // 서울N타워
             tMapPoint1 = new TMapPoint(37.551135, 126.988205);
         }
-        // 마커 아이콘
-        final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin);
+
         markerItem1.setIcon(bitmap); // 마커 아이콘 지정
         markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem1.setTMapPoint( tMapPoint1 ); // 마커의 좌표 지정
