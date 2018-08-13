@@ -6,12 +6,26 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context="kr.inha.inti.safe_backhome.MapActivity">
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="길찾기"
-        android:id="@+id/pathButton"
-        />
+        android:orientation="horizontal"
+        >
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="길찾기"
+            android:id="@+id/pathButton"
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="현위치"
+            android:id="@+id/locationButton"
+            />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayoutTmap"
@@ -19,6 +33,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
+
     </LinearLayout>
 
     <WebView

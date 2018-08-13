@@ -55,12 +55,10 @@ public class MapActivity extends Activity  {
         // 마커 아이콘
         final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin);
         final Bitmap bitmap2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin2);
+        final Bitmap bitmap3 = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin3);
 
         tMapView.setSKTMapApiKey( "ef7447fe-4766-4011-902b-a8117a302dd8" );
-        TMapMarkerItem markerItem1 = new TMapMarkerItem();
-        TMapPoint tMapPoint1;
-        TMapPOIItem tMapPOIItem = new TMapPOIItem();
-        TMapData tmapdata = new TMapData();
+        location(tMapView);
         /*----생활안전지도 관련 Webview 변수 정의----*/
         safemapView = (WebView) findViewById(R.id.safeMap);
         safemapSettings = safemapView.getSettings();
@@ -87,45 +85,10 @@ public class MapActivity extends Activity  {
         safemapView.loadUrl(safeurl);
 
         Button pathButton = (Button) findViewById(R.id.pathButton);
-        /*----GPS 사용----*/
-        gps = new GpsInfo(MapActivity.this);
-        // GPS 사용유무 가져오기
-        if (gps.isGetLocation()) {
-            // 위도, 경도 구하기
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
-            tMapView.setCenterPoint(longitude, latitude);
-            tMapPoint1 = new TMapPoint(latitude, longitude);
-            tmapdata.findAroundNamePOI(tMapPoint1, "편의점", new TMapData.FindAroundNamePOIListenerCallback() {
-                @Override
-                public void onFindAroundNamePOI(ArrayList<TMapPOIItem> poiItem) {
-                    for(int i = 0; i < poiItem.size(); i++) {
-                        TMapPOIItem  item = poiItem.get(i);
-                        Log.e("Hi","POI Name: " + item.getPOIName().toString() + ", " +
-                                "Address: " + item.getPOIAddress().replace("null", "")  + ", " +
-                                "Point: " + item.getPOIPoint().toString());
-                        TMapMarkerItem POIitem[] = new TMapMarkerItem[200];
-                        POIitem[i] = new TMapMarkerItem();
-                        POIitem[i].setIcon(bitmap2);
-                        POIitem[i].setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
-                        POIitem[i].setTMapPoint( item.getPOIPoint() ); // 마커의 좌표 지정
-                        POIitem[i].setName(item.getPOIName().toString());
-                        tMapView.addMarkerItem(item.getPOIID(), POIitem[i]);
-                    }
-                }
-            });
-        } else {
-            // GPS 를 사용할수 없으므로
-            gps.showSettingsAlert();
-            tMapView.setCenterPoint(126.988205, 37.551135); // 서울N타워
-            tMapPoint1 = new TMapPoint(37.551135, 126.988205);
-        }
+        Button locationButton = (Button) findViewById(R.id.locationButton);
 
-        markerItem1.setIcon(bitmap); // 마커 아이콘 지정
-        markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
-        markerItem1.setTMapPoint( tMapPoint1 ); // 마커의 좌표 지정
-        markerItem1.setName("현재위치"); // 마커의 타이틀 지정
-        tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
+        // GPS 사용유무 가져오기
+
 
         /*-----길찾기 버튼 누를 시-----*/
         pathButton.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +132,13 @@ public class MapActivity extends Activity  {
                             }
                         });
                 pathDialog.create().show();
+            }
+        });
+        /*----현위치 버튼 눌렀을 경우----*/
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                location(tMapView);
             }
         });
         linearLayoutTmap.addView( tMapView );
@@ -256,5 +226,65 @@ public class MapActivity extends Activity  {
                 } break;
             }
         }
+    }
+
+    void location(final TMapView tMapView) {
+        /*----GPS 사용----*/
+        gps = new GpsInfo(MapActivity.this);
+        final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin);
+        final Bitmap bitmap2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin2);
+        final Bitmap bitmap3 = BitmapFactory.decodeResource(this.getResources(), R.drawable.pin3);
+        TMapMarkerItem markerItem1 = new TMapMarkerItem();
+        TMapPoint tMapPoint1;
+        TMapPOIItem tMapPOIItem = new TMapPOIItem();
+        TMapData tmapdata = new TMapData();
+        if (gps.isGetLocation()) {
+            // 위도, 경도 구하기
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+            tMapView.setCenterPoint(longitude, latitude);
+            tMapPoint1 = new TMapPoint(latitude, longitude);
+            final TMapMarkerItem POIitem[] = new TMapMarkerItem[200];
+            tmapdata.findAroundNamePOI(tMapPoint1, "관공서;편의점;", new TMapData.FindAroundNamePOIListenerCallback() {
+                @Override
+                public void onFindAroundNamePOI(ArrayList<TMapPOIItem> poiItem) {
+                    if(poiItem==null)
+                        return;
+                    for(int i = 0; i < poiItem.size(); i++) {
+                        TMapPOIItem  item = poiItem.get(i);
+                        Log.e("Hi","POI Name: " + item.getPOIName().toString() + ", " +
+                                "Address: " + item.getPOIAddress().replace("null", "")  + ", " +
+                                "Point: " + item.getPOIPoint().toString());
+                        if(item.getPOIName().toString()=="편의점") {
+                            POIitem[i] = new TMapMarkerItem();
+                            POIitem[i].setIcon(bitmap2);
+                            POIitem[i].setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                            POIitem[i].setTMapPoint( item.getPOIPoint() ); // 마커의 좌표 지정
+                            POIitem[i].setName(item.getPOIName().toString());
+                            tMapView.addMarkerItem(item.getPOIID(), POIitem[i]);
+                        }
+                        else {
+                            POIitem[i] = new TMapMarkerItem();
+                            POIitem[i].setIcon(bitmap3);
+                            POIitem[i].setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                            POIitem[i].setTMapPoint( item.getPOIPoint() ); // 마커의 좌표 지정
+                            POIitem[i].setName(item.getPOIName().toString());
+                            tMapView.addMarkerItem(item.getPOIID(), POIitem[i]);
+                        }
+                    }
+                }
+            });
+        } else {
+            // GPS 를 사용할수 없으므로
+            gps.showSettingsAlert();
+            tMapView.setCenterPoint(126.988205, 37.551135); // 서울N타워
+            tMapPoint1 = new TMapPoint(37.551135, 126.988205);
+        }
+
+        markerItem1.setIcon(bitmap); // 마커 아이콘 지정
+        markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+        markerItem1.setTMapPoint( tMapPoint1 ); // 마커의 좌표 지정
+        markerItem1.setName("현재위치"); // 마커의 타이틀 지정
+        tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
     }
 }
